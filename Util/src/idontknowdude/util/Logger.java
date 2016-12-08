@@ -11,40 +11,18 @@ import java.util.Calendar;
 
 /**
  * @author jobota
- * Logger is a singleton class that sends messages to various fixed
- * log files located in /var/log/idontknowdude folder. This class
- * also applies timestamps to messages based on system time.
+ * Logger is a largely static class that sends messages to various
+ * fixed log files located in /var/log/idontknowdude folder. This
+ * class also applies timestamps to messages based on system time.
  */
 public class Logger {
 	
-	private static Logger instance = null;
-
-	private final String ERROR_FAILED_CREATE = "Failed to create ";
-	private final String ERROR_FAILED_WRITE = "Failed to write to ";
+	private static final String ERROR_FAILED_CREATE = "Failed to create ";
+	private static final String ERROR_FAILED_WRITE = "Failed to write to ";
 	
-	private File loggerDir = null;
-	private File generalLog = null;
-	private File errorLog = null;
-	
-	
-	/**
-	 * Gets an instance of Logger which results in all log files being
-	 * instantiated.
-	 * @return Logger loggerInstance
-	 */
-	public static Logger getInstance() {
-		if(instance == null) {
-			instance = new Logger();
-		}
-		return instance;
-	}
-	
-	private Logger() {
-		loggerDir = new File(Constants.LOGGER_DIR);
-		generalLog = new File(Constants.LOGGER_GENERAL_LOG);
-		errorLog = new File(Constants.LOGGER_ERROR_LOG);
-	}
-	
+	private static File loggerDir = new File(Constants.LOGGER_DIR);
+	private static File generalLog = new File(Constants.LOGGER_GENERAL_LOG);
+	private static File errorLog = new File(Constants.LOGGER_ERROR_LOG);
 	
 	/**
 	 * Prints some message to the console. Will also write the message
@@ -53,7 +31,7 @@ public class Logger {
 	 * @param String messageToConsole
 	 * @return Boolean success
 	 */
-	public boolean toConsole(String message) {
+	public static boolean toConsole(String message) {
 		return outputTerminal(message);
 	}
 	
@@ -63,8 +41,8 @@ public class Logger {
 	 * @param String messageToErrorLog
 	 * @return Boolean success
 	 */
-	public boolean toErrorLog(String message) {
-		return outputToLogFile(message, this.errorLog);
+	public static boolean toErrorLog(String message) {
+		return outputToLogFile(message, errorLog);
 	}
 	
 	/**
@@ -73,12 +51,12 @@ public class Logger {
 	 * @param String messageToGeneralLog
 	 * @return Boolean success
 	 */
-	public boolean toGeneralLog(String message) {
+	public static boolean toGeneralLog(String message) {
 		return outputToLogFile(message, generalLog);
 	}
 	
 	
-	private boolean outputTerminal(String message) {
+	private static boolean outputTerminal(String message) {
 		boolean retVal = true;
 
 		String output = getTimestamp() + message;
@@ -88,7 +66,7 @@ public class Logger {
 		return retVal;
 	}
 	
-	private boolean outputToLogFile(String message, File logFile) {
+	private static boolean outputToLogFile(String message, File logFile) {
 		boolean retVal = true;
 		
 		if(!logFile.isFile()) {
@@ -105,6 +83,7 @@ public class Logger {
 		{
 			printWriter.println(message);
 		} catch (IOException e) {
+			e.printStackTrace();
 			if (!logFile.equals(errorLog)) {
 				outputToLogFile(ERROR_FAILED_WRITE + logFile.toString(), errorLog);
 			}
@@ -114,7 +93,7 @@ public class Logger {
 		return retVal;
 	}
 	
-	private boolean createLogFile(File logFile) {
+	private static boolean createLogFile(File logFile) {
 		boolean retVal = true;
 		
 		if(!loggerDir.isDirectory()) {
@@ -130,6 +109,7 @@ public class Logger {
 		    printWriter.println(getTimestamp() + logFile.toString() + " created.");
 		    printWriter.close();
 		} catch (IOException e) {
+			e.printStackTrace();
 			if (!logFile.equals(errorLog)) {
 				outputToLogFile(ERROR_FAILED_CREATE + logFile.toString(), errorLog);
 			}
@@ -139,7 +119,7 @@ public class Logger {
 		return retVal;
 	}
 	
-	private String getTimestamp() {
+	private static String getTimestamp() {
 		String retVal = "";
 		
 	    DateFormat df = new SimpleDateFormat("yy-MM-dd HH:mm:ss : ");
